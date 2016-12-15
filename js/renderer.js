@@ -70,11 +70,10 @@ function errorHandler(error) {
 }
 
 function removeStartScreen() {
-  document.querySelector('#startScreen').style = 'opacity: 0';
+  document.querySelector('#startScreen').style = 'display: none;';
 }
 
-function sendSecret() {
-  const secret = document.querySelector('#secret').value;
+function sendSecret(secret) {
   ws.send(JSON.stringify({
     'secret': secret
   }));
@@ -99,22 +98,33 @@ function createSecret() {
   return numbers.join('');
 };
 
-// document.querySelector('#secret').value = createSecret();
-
-document.querySelector('#share').addEventListener('click', () => {
-  sendSecret();
+function addStream() {
   getScreenStream().then((stream) => {
     peerConnection.addStream(stream);
     peerConnection.createOffer(gotDescription, errorHandler);
   });
+}
+
+document.querySelector('#share').addEventListener('click', () => {
+  const secret = createSecret();
+  sendSecret(secret);
   removeStartScreen();
+  document.querySelector('#shareScreen').style = '';
+  document.querySelector('#secret').innerHTML = secret;
 });
 
 document.querySelector('#receive').addEventListener('click', () => {
   isSender = false;
-  sendSecret();
-  document.querySelector('#sendCursorWrapper').style = 'opacity: 1';
+  sendSecret(document.querySelector('#secretInput').value);
+  document.querySelector('#sendCursorWrapper').style = '';
+  document.querySelector('#remoteVideoWrapper').style = '';
   removeStartScreen();
+});
+
+ws.on('message', (message) => {
+  if (message.secret && isSender) {
+    addStream();
+  }
 });
 
 ws.on('message', (message) => {
