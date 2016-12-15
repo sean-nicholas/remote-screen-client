@@ -7,7 +7,7 @@
   "scripts": {
     "start": "electron .",
     "build": "electron-packager . --all --asar --out ./build --overwrite",
-	"build-mac": "electron-packager . --platform=darwin --asar --out ./build --overwrite"
+    "build-mac": "electron-packager . --platform=darwin --asar --out ./build --overwrite"
   },
   "repository": "https://github.com/electron/electron-quick-start",
   "keywords": [
