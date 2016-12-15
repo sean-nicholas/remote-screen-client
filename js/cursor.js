@@ -3,31 +3,45 @@ const remote = electron.remote;
 const electronScreen = electron.screen; 
 const screenSize = electronScreen.getPrimaryDisplay().size; 
 const BrowserWindow = remote.BrowserWindow;
-const ws = require('./websocket');
 const url = require('url');
 const path = require('path');
 let secondCursorWindow; 
 let sendCursor = false;
+let sendChannel;
+let receiveChannel;
 
-ws.on('message', (message) => {
-  if (message.type !== 'cursor') { 
-    return;
-  }
+module.exports = function(send, receive) {
+  sendChannel = send;
+  receiveChannel = receive;
 
-  if (message.cursor) {
-    setCusorWindow(message.cursor); 
-  }
+  if (receiveChannel) {
+    receiveChannel.onmessage = (data) => {
+      let message = {};
+      try {
+        message = JSON.parse(data.data);
+      } catch (e) {
+        console.log(e);
+      }
 
-  if (message.stop) {
-    console.log('stopping window');
-    secondCursorWindow.destroy();
+      if (message.type !== 'cursor') { 
+        return;
+      }
+
+      if (message.cursor) {
+        setCusorWindow(message.cursor); 
+      }
+
+      if (message.stop) {
+        secondCursorWindow.destroy();
+      }
+    };
   }
-});
+}
 
 function toggleSendCursor() { 
   sendCursor = !sendCursor;
   if (!sendCursor) {
-    ws.send(JSON.stringify({
+    sendChannel.send(JSON.stringify({
       type: 'cursor',
       stop: true
     }));
@@ -61,13 +75,9 @@ function createSecondCursorWindow() {
 } 
  
 function setCusorWindow(cursor) { 
-  if (!secondCursorWindow) { 
-    console.log('created window'); 
-    createSecondCursorWindow(); 
-    console.log(secondCursorWindow); 
-  } 
-   
-  // console.log(cursor.x, screenSize.width, cursor.y, screenSize.height); 
+  if (!secondCursorWindow) {
+    createSecondCursorWindow();
+  }
    
   var bounds = { 
     x: Math.round(cursor.x * screenSize.width) - 20, 
@@ -84,7 +94,7 @@ function sendCursorPos(e) {
     return; 
   } 
    
-  ws.send(JSON.stringify({
+  sendChannel.send(JSON.stringify({
     type: 'cursor',
     cursor: { 
       x: e.offsetX / e.srcElement.offsetWidth, 

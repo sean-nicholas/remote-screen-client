@@ -8,7 +8,7 @@ if (!navigator.getUserMedia || !window.RTCPeerConnection || !window.RTCIceCandid
 }
 
 const ws = require('./websocket');
-require('./cursor');
+const cursor = require('./cursor');
 
 let isSender = true;
 
@@ -21,8 +21,8 @@ const peerConnectionConfig = {
     {'url': 'stun:stun4.l.google.com:19302'}
   ]
 };
-const peerConnection = new RTCPeerConnection(peerConnectionConfig);
 
+const peerConnection = new RTCPeerConnection(peerConnectionConfig);
 peerConnection.onicecandidate = (event) => {
   if (event.candidate != null) {
     ws.send(JSON.stringify({
@@ -30,7 +30,6 @@ peerConnection.onicecandidate = (event) => {
     }));
   }
 };
-
 peerConnection.onaddstream = (event) => {
   document.getElementById('remoteVideo').src = window.URL.createObjectURL(event.stream);
 };
@@ -105,12 +104,39 @@ function addStream() {
   });
 }
 
+function createSenderChannel() {
+  return new Promise((res, rej) => {
+    const senderChannel = peerConnection.createDataChannel('senderChannel');
+    senderChannel.onerror = rej;
+    senderChannel.onopen = () => {
+      res(senderChannel);
+    };
+  });
+}
+
+// function createDataChannels() {
+//   if (isSender) {
+//     createSenderChannel().then(channel => {
+//       cursor(null, channel);
+//     });
+//   } else {
+//     peerConnection.ondatachannel = (event) => {
+//       const channel = event.channel;
+//       cursor(channel, null);
+//     }
+//   }
+// }
+
 document.querySelector('#share').addEventListener('click', () => {
   const secret = createSecret();
   sendSecret(secret);
   removeStartScreen();
   document.querySelector('#shareScreen').style = '';
   document.querySelector('#secret').innerHTML = secret;
+  // createDataChannels();
+  createSenderChannel().then(channel => {
+    cursor(null, channel);
+  });
 });
 
 document.querySelector('#receive').addEventListener('click', () => {
@@ -119,6 +145,11 @@ document.querySelector('#receive').addEventListener('click', () => {
   document.querySelector('#sendCursorWrapper').style = '';
   document.querySelector('#remoteVideoWrapper').style = '';
   removeStartScreen();
+  // createDataChannels();
+  peerConnection.ondatachannel = (event) => {
+    const channel = event.channel;
+    cursor(channel, null);
+  }
 });
 
 ws.on('message', (message) => {
