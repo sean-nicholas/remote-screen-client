@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Hello World!</title>
+  </head>
+  <body>
+     <div> 
+        <video id="localVideo" autoplay muted style="width:45%;"></video> 
+        <video id="remoteVideo" autoplay style="width:45%;"></video> 
+    </div>
+    <!--<input type="button" id="send" value="Senden"></input>
+    <input type="button" id="receive" value="Empfangen"></input>-->
+    <input type="checkbox" id="sendCursor">Send cusor position</input>
+
+    <div id="startScreen">
+      <input type="text" id="secret" value="super-secret">
+      <button id="share">Bildschirm teilen</button>
+      <button id="receive">Bildschirm empfangen</button>
+    </div>
+
+    <script>
+      require('../js/renderer.js')
+    </script>
+  </body>
+</html>

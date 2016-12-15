@@ -43,6 +43,8 @@
 //   console.log(e)
 // }
 
+const ws = require('./websocket');
+
 var localVideo; 
 var remoteVideo; 
 var peerConnection; 
@@ -57,15 +59,7 @@ function pageReady() {
     localVideo = document.getElementById('localVideo'); 
     remoteVideo = document.getElementById('remoteVideo'); 
  
-    serverConnection = new WebSocket('ws://localhost:3434'); 
-    serverConnection.onmessage = gotMessageFromServer; 
-
-    setTimeout(() => {
-        const secret = document.querySelector('#secret').value;
-        serverConnection.send(JSON.stringify({ 'secret': secret }));
-
-    }, 1000);
-
+    ws.on('data', gotMessageFromServer);
  
     // var constraints = { 
     //     video: true, 
@@ -101,7 +95,7 @@ function start(isCaller) {
 function gotMessageFromServer(message) { 
     if(!peerConnection) start(false); 
  
-    var signal = JSON.parse(message.data); 
+    var signal = JSON.parse(message); 
     if(signal.sdp) { 
         peerConnection.setRemoteDescription(new RTCSessionDescription(signal.sdp), function() { 
             peerConnection.createAnswer(gotDescription, errorHandler); 
@@ -115,14 +109,14 @@ function gotMessageFromServer(message) {
  
 function gotIceCandidate(event) { 
     if(event.candidate != null) { 
-        serverConnection.send(JSON.stringify({'ice': event.candidate})); 
+        ws.send(JSON.stringify({'ice': event.candidate})); 
     } 
 } 
  
 function gotDescription(description) { 
     console.log('got description'); 
     peerConnection.setLocalDescription(description, function () { 
-        serverConnection.send(JSON.stringify({'sdp': description})); 
+        ws.send(JSON.stringify({'sdp': description})); 
     }, function() {console.log('set description error')}); 
 } 
  
@@ -195,7 +189,7 @@ function sendCursorPos(e) {
     return; 
   } 
    
-  serverConnection.send(JSON.stringify({ 
+  ws.send(JSON.stringify({ 
     'cursor': { 
       x: e.offsetX / e.srcElement.offsetWidth, 
       y: e.offsetY / e.srcElement.offsetHeight 
@@ -203,21 +197,35 @@ function sendCursorPos(e) {
   })); 
 }
 
-document.querySelector('#send').addEventListener('click', () => {
-  pageReady();
-  setTimeout(() => {
-    start(true);
-  }, 2000);
-});
+// document.querySelector('#send').addEventListener('click', () => {
+//   pageReady();
+//   setTimeout(() => {
+//     start(true);
+//   }, 2000);
+// });
 
-document.querySelector('#receive').addEventListener('click', () => {
-  pageReady();
-});
+function sendSecret() {
+  const secret = document.querySelector('#secret').value;
+  ws.send(JSON.stringify({ 'secret': secret }));
+}
+
 
 document.querySelector('#sendCursor').addEventListener('click', () => {
-  toggleSendCursor()
+  toggleSendCursor();
 });
 
 document.querySelector('#remoteVideo').addEventListener('mousemove', () => {
   sendCursorPos(event);
+});
+
+document.querySelector('#share').addEventListener('click', () => {
+  sendSecret();
+  pageReady();
+  setTimeout(() => { start(true) }, 1000);
+});
+
+document.querySelector('#receive').addEventListener('click', () => {
+  sendSecret();
+  pageReady();
+  // start();
 });
