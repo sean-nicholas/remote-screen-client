@@ -9,11 +9,12 @@
         <video id="localVideo" autoplay muted style="width:45%;"></video> 
         <video id="remoteVideo" autoplay style="width:45%;"></video> 
     </div>
-    <!--<input type="button" id="send" value="Senden"></input>
-    <input type="button" id="receive" value="Empfangen"></input>-->
-    <input type="checkbox" id="sendCursor">Send cusor position</input>
 
-    <div id="startScreen">
+    <div id="sendCursorWrapper" style="opacity: 0">
+      <input type="checkbox" id="sendCursor"></input>Send cusor position
+    </div>
+
+    <div id="startScreen" style="opacity: 0">
       <input type="text" id="secret" value="super-secret">
       <button id="share">Bildschirm teilen</button>
       <button id="receive">Bildschirm empfangen</button>

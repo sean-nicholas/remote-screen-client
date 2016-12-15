@@ -61,11 +61,6 @@ function pageReady() {
     remoteVideo = document.getElementById('remoteVideo'); 
  
     ws.on('data', gotMessageFromServer);
- 
-    // var constraints = { 
-    //     video: true, 
-    //     audio: true, 
-    // }; 
      
     var constraints = { video: { mandatory: { chromeMediaSource: 'screen', maxWidth: screen.width, maxHeight: screen.height, 
     minFrameRate: 1, maxFrameRate: 60 }, optional: [] }, audio: false }; 
@@ -88,9 +83,12 @@ function start(isCaller) {
     peerConnection.onaddstream = gotRemoteStream; 
     peerConnection.addStream(localStream);
  
-    if(isCaller) {
+    if (isCaller) {
         peerConnection.createOffer(gotDescription, errorHandler); 
-    } 
+    } else {
+      document.querySelector('#sendCursorWrapper').style = '';
+    }
+    document.querySelector('#startScreen').style = 'opacity: 0';
 } 
  
 function gotMessageFromServer(message) { 
@@ -128,13 +126,6 @@ function errorHandler(error) {
     console.log(error); 
 }
 
-// document.querySelector('#send').addEventListener('click', () => {
-//   pageReady();
-//   setTimeout(() => {
-//     start(true);
-//   }, 2000);
-// });
-
 function sendSecret() {
   const secret = document.querySelector('#secret').value;
   ws.send(JSON.stringify({ 'secret': secret }));
@@ -149,5 +140,8 @@ document.querySelector('#share').addEventListener('click', () => {
 document.querySelector('#receive').addEventListener('click', () => {
   sendSecret();
   pageReady();
-  // start();
 });
+
+ws.on('connect', () => {
+  document.querySelector('#startScreen').style = '';
+})
