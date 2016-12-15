@@ -1,10 +1,13 @@
 {
-  "name": "electron-quick-start",
+  "name": "remote-screen",
+  "productName": "RemoteScreen",
   "version": "1.0.0",
-  "description": "A minimal Electron application",
+  "description": "Remote Screen Tool",
   "main": "main.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "build": "electron-packager . --all --asar --out ./build --overwrite",
+	"build-mac": "electron-packager . --platform=darwin --asar --out ./build --overwrite"
   },
   "repository": "https://github.com/electron/electron-quick-start",
   "keywords": [
@@ -17,7 +20,8 @@
   "author": "GitHub",
   "license": "CC0-1.0",
   "devDependencies": {
-    "electron": "^1.4.1"
+    "electron": "^1.4.1",
+    "electron-packager": "^8.4.0"
   },
   "dependencies": {
     "material-design-lite": "^1.2.1",
