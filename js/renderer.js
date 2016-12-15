@@ -50,12 +50,11 @@ const userMediaConstraints = {
 };
 
 function gotDescription(description) {
-  console.log('got description');
-  peerConnection.setLocalDescription(description, function () {
+  peerConnection.setLocalDescription(description, () => {
     ws.send(JSON.stringify({
       'sdp': description
     }));
-  }, function () {
+  }, () => {
     console.log('set description error')
   });
 }
@@ -64,16 +63,6 @@ function getScreenStream() {
   return new Promise((res, rej) => {
     navigator.getUserMedia(userMediaConstraints, res, rej);
   });
-}
-
-function start(isCaller, stream) {
-  if (isCaller) {
-    peerConnection.addStream(stream);
-    peerConnection.createOffer(gotDescription, errorHandler);
-  } else {
-    document.querySelector('#sendCursorWrapper').style = 'opacity: 1';
-  }
-  removeStartScreen();
 }
 
 function errorHandler(error) {
@@ -115,25 +104,35 @@ function createSecret() {
 document.querySelector('#share').addEventListener('click', () => {
   sendSecret();
   getScreenStream().then((stream) => {
-    start(true, stream);
+    peerConnection.addStream(stream);
+    peerConnection.createOffer(gotDescription, errorHandler);
   });
+  removeStartScreen();
 });
 
 document.querySelector('#receive').addEventListener('click', () => {
   isSender = false;
   sendSecret();
+  document.querySelector('#sendCursorWrapper').style = 'opacity: 1';
+  removeStartScreen();
 });
 
 ws.on('message', (message) => {
-  if (!isSender) start(false);
+  if (!message.sdp) return;
 
-  if (message.sdp) {
-    peerConnection.setRemoteDescription(new RTCSessionDescription(message.sdp), function () {
-      peerConnection.createAnswer(gotDescription, errorHandler);
-    }, errorHandler);
-  } else if (message.ice) {
-    peerConnection.addIceCandidate(new RTCIceCandidate(message.ice));
-  }
+  new Promise((res, rej) => {
+    peerConnection.setRemoteDescription(new RTCSessionDescription(message.sdp), res, rej);
+  })
+  .then(() => {
+    if (isSender) return;
+    peerConnection.createAnswer(gotDescription, errorHandler);
+  })
+  .catch(errorHandler);
+});
+
+ws.on('message', (message) => {
+  if (!message.ice) return;
+  peerConnection.addIceCandidate(new RTCIceCandidate(message.ice));
 });
 
 ws.on('connect', () => {
