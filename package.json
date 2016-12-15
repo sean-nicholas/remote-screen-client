@@ -20,6 +20,7 @@
     "electron": "^1.4.1"
   },
   "dependencies": {
+    "material-design-lite": "^1.2.1",
     "simple-websocket": "^4.1.0"
   }
 }

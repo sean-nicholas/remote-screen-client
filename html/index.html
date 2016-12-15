@@ -3,24 +3,51 @@
   <head>
     <meta charset="UTF-8">
     <title>Remote Screen</title>
+    <link rel="stylesheet" href="../node_modules/material-design-lite/material.min.css">
+    <link rel="stylesheet" href="../css/index.css">
+    <script src="../node_modules/material-design-lite/material.min.js"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
   </head>
   <body>
-    <div id="remoteVideoWrapper" style="display: none;">
-      <video id="remoteVideo" autoplay style="max-width:100%; max-height: 100%;"></video> 
+    <div id="menu">
+      <span>Remote Screen</span>
+      <div class="right">
+        <button class="mdl-button mdl-js-button mdl-button--icon" onclick="window.location.reload()">
+          <i class="material-icons">refresh</i>
+        </button>
+        <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect mdl-checkbox--accent" for="sendCursor" id="sendCursorWrapper" style="display: none;">
+          <input type="checkbox" id="sendCursor" class="mdl-checkbox__input">
+          <span class="mdl-checkbox__label">Sende Cursor Position</span>
+        </label>
+      </div>
     </div>
 
-    <div id="sendCursorWrapper" style="display: none;">
-      <input type="checkbox" id="sendCursor"></input>Send cusor position
-    </div>
+    <div id="wrapper">
+      <div id="remoteVideoWrapper" style="display: none;">
+        <video id="remoteVideo" autoplay></video> 
+      </div>
 
-    <div id="shareScreen" style="display: none;">
-      <span id="secret"></span>
-    </div>
+      <div id="shareScreen" style="display: none;">
+        <p>Geheimnis:</p>
+        <p id="secret"></p>
+        <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" onclick="window.location.reload()">
+          <i class="material-icons">stop_screen_share</i>
+          Nicht mehr teilen
+        </button>
+      </div>
 
-    <div id="startScreen" style="display: none;">
-      <button id="share">Bildschirm teilen</button>
-      <input type="text" id="secretInput" value="">
-      <button id="receive">Bildschirm empfangen</button>
+      <div id="startScreen" style="display: none;">
+        <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" id="share">
+          <i class="material-icons">screen_share</i>
+          Bildschirm teilen
+        </button>
+        <span>oder</span>
+        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+          <input type="text" class="mdl-textfield__input" id="secretInput" value="">
+          <label class="mdl-textfield__label" for="secretInput">Geheimnis</label>
+        </div>
+        <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" id="receive">Bildschirm empfangen</button>
+      </div>
     </div>
 
     <script>
