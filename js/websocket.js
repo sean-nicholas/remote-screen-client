@@ -1,5 +1,5 @@
 const SimpleWebsocket = require('simple-websocket')
-const ws = new SimpleWebsocket('ws://localhost:3434');
+const ws = new SimpleWebsocket('wss://remote-desktop.herokuapp.com');
 
 ws.on('data', (data) => {
   let message = {};

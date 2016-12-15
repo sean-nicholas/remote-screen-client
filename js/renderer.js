@@ -114,19 +114,6 @@ function createSenderChannel() {
   });
 }
 
-// function createDataChannels() {
-//   if (isSender) {
-//     createSenderChannel().then(channel => {
-//       cursor(null, channel);
-//     });
-//   } else {
-//     peerConnection.ondatachannel = (event) => {
-//       const channel = event.channel;
-//       cursor(channel, null);
-//     }
-//   }
-// }
-
 document.querySelector('#share').addEventListener('click', () => {
   const secret = createSecret();
   sendSecret(secret);
