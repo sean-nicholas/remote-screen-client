@@ -44,6 +44,7 @@
 // }
 
 const ws = require('./websocket');
+require('./cursor');
 
 var localVideo; 
 var remoteVideo; 
@@ -102,8 +103,6 @@ function gotMessageFromServer(message) {
         }, errorHandler); 
     } else if(signal.ice) { 
         peerConnection.addIceCandidate(new RTCIceCandidate(signal.ice)); 
-    } else if(signal.cursor) { 
-      setCusorWindow(signal.cursor); 
     } 
 } 
  
@@ -129,74 +128,6 @@ function errorHandler(error) {
     console.log(error); 
 }
 
-var sendCursorInterval = null; 
-var electron = require('electron'); 
-var remote = electron.remote;
-var electronScreen = electron.screen; 
-var screenSize = electronScreen.getPrimaryDisplay().size; 
-var BrowserWindow = remote.BrowserWindow; 
-var secondCursorWindow; 
-var sendCursor = false; 
-
-function toggleSendCursor() { 
-  sendCursor = !sendCursor; 
-} 
- 
-function createSecondCursorWindow() { 
-  secondCursorWindow = new BrowserWindow({ 
-    width: 20, 
-    height: 20, 
-    alwaysOnTop: true, 
-    resizable: false, 
-    movable: false, 
-    minimizable: false, 
-    maximizable: false, 
-    closable: false, 
-    skipTaskbar: true, 
-    frame: false, 
-    transparent: true, 
-  }); 
-  secondCursorWindow.loadURL('file://' + __dirname + '/cursor.html'); 
-  // window.webContents.openDevTools(); 
-  secondCursorWindow.on('closed', function() { 
-    window = null; 
-  }); 
-} 
- 
-function setCusorWindow(cursor) { 
-  if (!secondCursorWindow) { 
-    console.log('created window'); 
-    createSecondCursorWindow(); 
-    console.log(secondCursorWindow); 
-  } 
-   
-  console.log(cursor.x, screenSize.width, cursor.y, screenSize.height); 
-   
-  var bounds = { 
-    x: Math.round(cursor.x * screenSize.width) - 20, 
-    y: Math.round(cursor.y * screenSize.height) - 10, 
-    width: 20, 
-    height: 20 
-  }; 
-   
-  console.log(bounds); 
-   
-  secondCursorWindow.setBounds(bounds); 
-} 
- 
-function sendCursorPos(e) { 
-  if (!sendCursor) { 
-    return; 
-  } 
-   
-  ws.send(JSON.stringify({ 
-    'cursor': { 
-      x: e.offsetX / e.srcElement.offsetWidth, 
-      y: e.offsetY / e.srcElement.offsetHeight 
-    } 
-  })); 
-}
-
 // document.querySelector('#send').addEventListener('click', () => {
 //   pageReady();
 //   setTimeout(() => {
@@ -208,15 +139,6 @@ function sendSecret() {
   const secret = document.querySelector('#secret').value;
   ws.send(JSON.stringify({ 'secret': secret }));
 }
-
-
-document.querySelector('#sendCursor').addEventListener('click', () => {
-  toggleSendCursor();
-});
-
-document.querySelector('#remoteVideo').addEventListener('mousemove', () => {
-  sendCursorPos(event);
-});
 
 document.querySelector('#share').addEventListener('click', () => {
   sendSecret();
