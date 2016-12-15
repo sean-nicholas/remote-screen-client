@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Hello World!</title>
+  </head>
+  <body>
+    <!--<img src="" alt="">
+    <video></video>-->
+     <div> 
+        <video id="localVideo" autoplay muted style="width:45%;"></video> 
+        <video id="remoteVideo" autoplay style="width:45%;"></video> 
+    </div>
+    <input type="text" id="secret" value="super-secret">
+    <input type="button" id="send" value="Senden"></input>
+    <input type="button" id="receive" value="Empfangen"></input>
+    <input type="checkbox" id="sendCursor">Send cusor position</input> 
+
+    <script>
+      require('./renderer.js')
+    </script>
+  </body>
+</html>
